@@ -1,0 +1,40 @@
+# Node.js dependencies
+node_modules/
+
+# Build output directories (e.g., for React, Vue, etc.)
+build/
+dist/
+
+# Logs
+*.log
+*.log.*
+
+# Environment files (to keep secrets safe)
+.env
+.env.local
+.env.*.local
+
+# IDE and editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing & Coverage directories
+coverage/
+
+# Prettier config and ignore files
+.prettierignore
+.prettierc
+
+# Optional: OS-specific files
+.DS_Store    # macOS
+Thumbs.db    # Windows
+
+# npm and yarn logs
+npm-debug.log
+yarn-error.log
+
+# Backup and temp files
+*.bak
+*.tmp
