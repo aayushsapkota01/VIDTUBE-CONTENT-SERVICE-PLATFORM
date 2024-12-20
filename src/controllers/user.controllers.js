@@ -313,7 +313,7 @@ export const getUserChannelProfile = asyncHandler(async (req, res) => {
     );
 });
 
-const getWatchHistory = asyncHandler(async (req, res) => {
+export const getWatchHistory = asyncHandler(async (req, res) => {
   const user = await User.aggregate([
     {
       $match: {
@@ -367,5 +367,99 @@ const getWatchHistory = asyncHandler(async (req, res) => {
           "Watch history fetched successfully"
         )
       );
+  }
+});
+
+export const logoutUser = asyncHandler(async (req, res) => {
+  const { accessToken, refreshToken } = req.cookies;
+  if (!accessToken || !refreshToken) {
+    return res.status(200).json(new ApiResponse(200, null, "Logged out"));
+  }
+
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    sameSite: "none",
+    secure: true,
+  });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    sameSite: "none",
+    secure: true,
+  });
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "Logged out successfully"));
+});
+
+export const changeCurrentPassword = asyncHandler(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    throw new ApiError(400, "Current password and new password are required");
+  }
+
+  const user = await User.findById(req.user?.id);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  } else {
+    const isPasswordMatch = await user.comparePassword(currentPassword);
+    if (!isPasswordMatch) {
+      throw new ApiError(401, "Current password is incorrect");
+    } else {
+      user.password = newPassword;
+      await user.save({ validateBeforeSave: false });
+      return res
+        .status(200)
+        .json(new ApiResponse(200, null, "Password changed successfully"));
+    }
+  }
+});
+
+export const getCurrentUser = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .json(new ApiResponse(200, req.user, "Current user fetched successfully"));
+});
+
+export const updateAccountDetails = asyncHandler(async (req, res) => {
+  const { username, avatar, coverImage } = req.body;
+  const user = await User.findById(req.user?.id);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  } else {
+    user.username = username;
+    user.avatar = avatar;
+    user.coverImage = coverImage;
+    await user.save({ validateBeforeSave: false });
+    return res
+      .status(200)
+      .json(new ApiResponse(200, null, "Account details updated successfully"));
+  }
+});
+
+export const updateUserAvatar = asyncHandler(async (req, res) => {
+  const { avatar } = req.body;
+  const user = await User.findById(req.user?.id);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  } else {
+    user.avatar = avatar;
+    await user.save({ validateBeforeSave: false });
+    return res
+      .status(200)
+      .json(new ApiResponse(200, null, "Avatar updated successfully"));
+  }
+});
+
+export const updateUserCoverImage = asyncHandler(async (req, res) => {
+  const { coverImage } = req.body;
+  const user = await User.findById(req.user?.id);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  } else {
+    user.coverImage = coverImage;
+    await user.save({ validateBeforeSave: false });
+    return res
+      .status(200)
+      .json(new ApiResponse(200, null, "Cover image updated successfully"));
   }
 });
